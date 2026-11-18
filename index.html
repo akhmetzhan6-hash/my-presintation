@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Зәр жалпы талдауы: динамика</title>
+  <meta name="description" content="14 жастағы ер баланың 16.02.2026 – 15.04.2026 аралығындағы зәр жалпы талдауы нәтижелерінің презентациясы." />
+  <meta property="og:title" content="Зәр жалпы талдауы: динамика" />
+  <meta property="og:description" content="14 жастағы ер баланың 16.02.2026 – 15.04.2026 аралығындағы зәр жалпы талдауы нәтижелерінің презентациясы." />
+  <meta property="og:type" content="website" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --border: #cbd5e1;
+      --border-soft: #e2e8f0;
+      --text: #0f172a;
+      --text-body: #1e293b;
+      --text-muted: #475569;
+      --teal: #0f766e;
+      --teal-soft: #ccfbf1;
+      --teal-mid: #5eead4;
+      --teal-tint: #f0fdfa;
+      --amber: #d97706;
+      --amber-text: #b45309;
+      --amber-tint: #fffbeb;
+      --amber-border: #fcd34d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #e2e8f0;
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body.is-presenting {
+      background: #000000;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
+    }
+    body.is-presenting.hide-cursor { cursor: none; }
+    #stage {
+      position: fixed; left: 50%; top: 50%;
+      width: 1920px; height: 1080px;
+      background: var(--bg);
+      transform-origin: center center;
+      overflow: hidden;
+    }
+    .slide {
+      display: none;
+      width: 1920px; height: 1080px;
+      padding: 64px 96px;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .slide.is-active { display: flex; }
+    .slide.is-active.dir-next { animation: slideNext 350ms ease both; }
+    .slide.is-active.dir-prev { animation: slidePrev 350ms ease both; }
+    @keyframes slideNext {
+      from { opacity: 0; transform: translateX(36px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slidePrev {
+      from { opacity: 0; transform: translateX(-36px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .bar-anim { animation: growY 420ms ease-out both; transform-origin: 0 470px; }
+    .line-anim { animation: drawLine 550ms ease-out both; }
+    @keyframes growY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    @keyframes drawLine { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+
+    body.lite *, body.lite .slide, body.lite .bar-anim, body.lite .line-anim {
+      animation: none !important; transition: none !important;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, .slide, .bar-anim, .line-anim { animation: none !important; transition: none !important; }
+    }
+
+    /* Typography & Layout */
+    .kicker { font-size: 24px; font-weight: 600; color: var(--teal); letter-spacing: 0.01em; margin-bottom: 14px; }
+    h1, h2 { font-size: 64px; font-weight: 700; line-height: 1.12; color: var(--text); text-wrap: balance; }
+    .subtitle { font-size: 28px; line-height: 1.4; color: var(--text-muted); margin-top: 14px; }
+    .body-text { font-size: 28px; line-height: 1.48; color: var(--text-body); }
+    .num { font-variant-numeric: tabular-nums; }
+    .slide-head { flex: 0 0 auto; }
+    .slide-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; margin-top: 32px; }
+    .slide-foot { flex: 0 0 auto; font-size: 23px; color: var(--text-muted); padding-top: 20px; border-top: 1px solid var(--border-soft); }
+
+    /* Cover / Start screen */
+    .cover { justify-content: center; align-items: flex-start; padding: 96px 140px; }
+    .cover h1 { font-size: 76px; max-width: 1300px; }
+    .cover-dates { font-size: 40px; font-weight: 600; color: var(--teal); margin-top: 28px; }
+    .cover-meta { font-size: 28px; color: var(--text-muted); margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); width: 100%; max-width: 920px; }
+    .start-controls { display: flex; align-items: center; gap: 36px; margin-top: 56px; }
+    body.is-presenting .start-only { display: none; }
+    .btn-start {
+      display: inline-flex; align-items: center; gap: 16px;
+      background: var(--teal); color: #ffffff; border: 0; border-radius: 12px;
+      padding: 22px 48px; font-size: 30px; font-weight: 600; font-family: inherit; cursor: pointer;
+      transition: opacity 150ms ease;
+    }
+    .btn-start:hover { opacity: 0.92; }
+    .btn-start:focus-visible, .lite-toggle:focus-visible { outline: 3px solid var(--teal); outline-offset: 4px; }
+    .lite-toggle {
+      display: inline-flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px 28px; font-size: 24px; font-weight: 500; color: var(--text-body);
+      font-family: inherit; cursor: pointer;
+    }
+    .lite-box {
+      width: 26px; height: 26px; border-radius: 6px; border: 2px solid var(--border);
+      display: inline-flex; align-items: center; justify-content: center; background: var(--bg);
+    }
+    body.lite .lite-box { background: var(--teal); border-color: var(--teal); color: #ffffff; }
+
+    /* Grids & Panels */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+    .grid-3x2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 36px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .panel-amber { background: var(--amber-tint); border-color: var(--amber-border); }
+    .panel-idx { font-size: 24px; font-weight: 700; color: var(--teal); }
+    .panel-title { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1.25; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 18px 16px; text-align: left; border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
+    th { background: var(--surface-alt); font-size: 22px; font-weight: 700; color: var(--text); white-space: nowrap; }
+    td { font-size: 23px; line-height: 1.32; color: var(--text-body); }
+    tr:last-child td { border-bottom: 0; }
+    td.flag-amber { background: var(--amber-tint); color: var(--amber-text); font-weight: 700; }
+    td.date-col { font-weight: 700; color: var(--text); white-space: nowrap; }
+    td.note-col { font-size: 20px; min-width: 310px; }
+
+    /* Negative tiles */
+    .tile {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 32px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px;
+    }
+    .tile-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .tile-icon {
+      width: 48px; height: 48px; border-radius: 10px; background: var(--teal-tint);
+      border: 1px solid var(--teal-soft); color: var(--teal);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .tile-status { font-size: 28px; font-weight: 700; color: var(--teal); }
+    .tile-desc { font-size: 24px; line-height: 1.38; color: var(--text-muted); }
+
+    /* List items (Slides 7, 9) */
+    .split-7 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 36px; align-items: stretch; }
+    .row-list { display: flex; flex-direction: column; }
+    .row-item { padding: 26px 0; border-bottom: 1px solid var(--border-soft); }
+    .row-item:first-child { padding-top: 0; }
+    .row-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .q-list { display: flex; flex-direction: column; gap: 22px; }
+    .q-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 28px 34px; display: flex; align-items: flex-start; gap: 28px;
+    }
+    .q-num { font-size: 32px; font-weight: 700; color: var(--teal); flex-shrink: 0; padding-top: 2px; }
+
+    /* Disclaimer */
+    .disclaimer-wrap { justify-content: center; align-items: center; text-align: center; padding: 96px 160px; }
+    .disclaimer-text { font-size: 52px; font-weight: 700; line-height: 1.3; color: var(--text); max-width: 1420px; text-wrap: balance; }
+    .disclaimer-line { width: 140px; height: 3px; background: var(--teal); margin: 44px auto; }
+    .source-text { font-size: 30px; color: var(--text-muted); }
+
+    /* Chart card */
+    .chart-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 28px 36px 20px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .chart-legend { display: flex; align-items: center; justify-content: flex-end; gap: 36px; font-size: 22px; color: var(--text-muted); }
+    .leg-item { display: inline-flex; align-items: center; gap: 10px; }
+    .leg-swatch { width: 20px; height: 20px; border-radius: 4px; display: inline-block; }
+
+    /* Slide counter HUD in presentation mode */
+    #hud {
+      display: none;
+      position: fixed; right: 44px; bottom: 32px;
+      font-size: 24px; font-weight: 600; color: var(--text-muted);
+      background: rgba(248, 250, 252, 0.9);
+      border: 1px solid var(--border); border-radius: 8px; padding: 8px 18px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 250ms ease;
+    }
+    body.is-presenting #hud { display: block; }
+    body.is-presenting #hud.is-visible { opacity: 1; }
+  </style>
+</head>
+<body>
+  <main id="stage" aria-live="polite"></main>
+  <div id="hud" class="num" aria-hidden="true"></div>
+  <script>
+    (() => {
+      const LAB = [
+        { date: "16.02.2026", short: "16.02", color: "Ашық сары", clarity: "Толық емес", sg: 1020, sgLabel: "1020", ph: "Қышқыл", protein: "Жоқ", leu: [3, 4], epi: "—", mucus: "+", extra: "Билирубин: іздері" },
+        { date: "18.02.2026", short: "18.02", color: "Ашық сары", clarity: "Мөлдір", sg: 1020, sgLabel: "1020", ph: "Қышқыл", protein: "Жоқ", leu: [3, 4], epi: "1–2", mucus: "–", extra: "—" },
+        { date: "24.02.2026", short: "24.02", color: "Ашық сары", clarity: "Мөлдір", sg: 1030, sgLabel: "1030", ph: "Қышқыл", protein: "Жоқ", leu: [4, 6], epi: "1–2", mucus: "+", extra: "—" },
+        { date: "27.02.2026", short: "27.02", color: "Ашық сары", clarity: "Бұлыңғыр", sg: 1030, sgLabel: "1030", ph: "Қышқыл", protein: "Жоқ", leu: [3, 4], epi: "2–3", mucus: "+", extra: "—" },
+        { date: "06.04.2026", short: "06.04", color: "Ашық сары", clarity: "Көрсетілмеген", sg: 1030, sgLabel: "1030", ph: "Қышқыл", protein: "Жоқ", leu: [3, 4], epi: "—", mucus: "+", extra: "Урат тұздары: +" },
+        { date: "09.04.2026", short: "09.04", color: "Сабан сары", clarity: "Мөлдір", sg: 1025, sgLabel: "1025", ph: "Қышқыл", protein: "Жоқ", leu: [1, 2], epi: "2–2", mucus: "–", extra: "—" },
+        { date: "15.04.2026", short: "15.04", color: "Ашық сары", clarity: "Бұлыңғыр", sg: 1032, sgLabel: ">1030", ph: "Қышқыл", protein: "Жоқ", leu: [0, 2], epi: "—", mucus: "—", extra: "Саңырауқұлақтар: +; қан, нитриттер, глюкоза, кетон денелері: теріс; уробилиноген: қалыпты" }
+      ];
+
+      const CHECK_SVG = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+      const ARROW_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>';
+
+      function buildLeuChart() {
+        const W = 1600, H = 560, L = 110, R = 1540, T = 40, B = 470, maxV = 7;
+        const yOf = (v) => B - (v / maxV) * (B - T);
+        const step = (R - L) / LAB.length, bw = 92;
+        let grid = "", bars = "";
+        for (let v = 0; v <= maxV; v++) {
+          const y = yOf(v);
+          const dash = v === 5 ? ' stroke="#0f766e" stroke-width="2.5" stroke-dasharray="10 8"' : ' stroke="#e2e8f0" stroke-width="1.5"';
+          grid += `<line x1="${L}" y1="${y}" x2="${R}" y2="${y}"${dash}/><text x="${L - 18}" y="${y + 8}" text-anchor="end" font-size="22" fill="#475569">${v}</text>`;
+        }
+        LAB.forEach((d, i) => {
+          const cx = L + step * (i + 0.5), x = cx - bw / 2, [lo, hi] = d.leu;
+          const over = hi > 5, mid = Math.min(hi, 5);
+          const y0 = yOf(0), yLo = yOf(lo), yMid = yOf(mid), yHi = yOf(hi);
+          let segs = "";
+          if (lo > 0) segs += `<rect x="${x}" y="${yLo}" width="${bw}" height="${y0 - yLo}" fill="#0f766e" rx="4"/>`;
+          if (mid > lo) segs += `<rect x="${x}" y="${yMid}" width="${bw}" height="${yLo - yMid}" fill="#5eead4"/>`;
+          if (over) segs += `<rect x="${x}" y="${yHi}" width="${bw}" height="${yMid - yHi}" fill="#d97706" rx="4"/>`;
+          const lblColor = over ? "#b45309" : "#0f172a";
+          bars += `<g class="bar-anim">${segs}</g><text x="${cx}" y="${yHi - 16}" text-anchor="middle" font-size="26" font-weight="700" fill="${lblColor}">${lo}–${hi}</text><text x="${cx}" y="${B + 42}" text-anchor="middle" font-size="24" font-weight="600" fill="#1e293b">${d.short}</text>`;
+        });
+        return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="520" role="img" aria-label="Лейкоциттер динамикасы графигі">
+          <rect x="${L}" y="${yOf(5)}" width="${R - L}" height="${yOf(0) - yOf(5)}" fill="#ccfbf1" opacity="0.42"/>
+          ${grid}
+          <text x="${R - 8}" y="${yOf(5) - 12}" text-anchor="end" font-size="21" font-weight="600" fill="#0f766e">Қалыпты аралық: 0–5 к/а</text>
+          <line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="#94a3b8" stroke-width="2"/>
+          ${bars}
+        </svg>`;
+      }
+
+      function buildSgChart() {
+        const W = 1600, H = 560, L = 130, R = 1530, T = 45, B = 470, minV = 1000, maxV = 1035;
+        const yOf = (v) => B - ((v - minV) / (maxV - minV)) * (B - T);
+        const step = (R - L) / LAB.length;
+        let grid = "", pts = [], dots = "", totalLen = 0;
+        for (let v = 1000; v <= 1035; v += 5) {
+          const y = yOf(v);
+          const isRef = v === 1005 || v === 1030;
+          const attr = isRef ? ' stroke="#0f766e" stroke-width="2.2" stroke-dasharray="10 8"' : ' stroke="#e2e8f0" stroke-width="1.5"';
+          grid += `<line x1="${L}" y1="${y}" x2="${R}" y2="${y}"${attr}/><text x="${L - 18}" y="${y + 8}" text-anchor="end" font-size="22" fill="#475569">${v}</text>`;
+        }
+        LAB.forEach((d, i) => {
+          const cx = L + step * (i + 0.5), cy = yOf(d.sg);
+          pts.push([cx, cy]);
+          if (i > 0) totalLen += Math.hypot(cx - pts[i - 1][0], cy - pts[i - 1][1]);
+          const over = d.sg > 1030;
+          const c = over ? "#d97706" : "#0f766e";
+          const lbl = over ? "#b45309" : "#0f172a";
+          dots += `<circle cx="${cx}" cy="${cy}" r="${over ? 11 : 9}" fill="${c}" stroke="#ffffff" stroke-width="3"/><text x="${cx}" y="${cy - 22}" text-anchor="middle" font-size="25" font-weight="700" fill="${lbl}">${d.sgLabel}</text><text x="${cx}" y="${B + 42}" text-anchor="middle" font-size="24" font-weight="600" fill="#1e293b">${d.short}</text>`;
+        });
+        const poly = pts.map((p) => p.join(",")).join(" ");
+        return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="520" role="img" aria-label="Меншікті тығыздық динамикасы графигі">
+          <rect x="${L}" y="${yOf(1030)}" width="${R - L}" height="${yOf(1005) - yOf(1030)}" fill="#ccfbf1" opacity="0.42"/>
+          ${grid}
+          <text x="${L + 12}" y="${yOf(1030) - 12}" text-anchor="start" font-size="21" font-weight="600" fill="#0f766e">Қалыпты аралық: 1005–1030</text>
+          <line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="#94a3b8" stroke-width="2"/>
+          <polyline class="line-anim" points="${poly}" fill="none" stroke="#0f766e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${Math.ceil(totalLen)}" style="--len:${Math.ceil(totalLen)}"/>
+          ${dots}
+        </svg>`;
+      }
+
+      const SLIDES = [
+        () => `<section class="slide cover">
+          <div class="kicker">Клиникалық динамика · 14 жастағы ер бала</div>
+          <h1>Зәр жалпы талдауы: динамика</h1>
+          <div class="cover-dates num">16.02.2026 – 15.04.2026</div>
+          <div class="cover-meta">7 зертханалық талдау нәтижесіне негізделген шолу</div>
+          <div class="start-controls start-only">
+            <button type="button" id="btn-start" class="btn-start"><span>Бастау</span>${ARROW_SVG}</button>
+            <button type="button" id="btn-lite" class="lite-toggle" aria-pressed="false"><span class="lite-box" aria-hidden="true"></span><span>Жеңіл режим</span></button>
+          </div>
+        </section>`,
+
+        () => `<section class="slide">
+          <div class="slide-head">
+            <div class="kicker">02 · Негізгі түсінік</div>
+            <h2>Зәр жалпы талдауы нені көрсетеді?</h2>
+            <p class="subtitle">Зертханалық көрсеткіштер ағзаның су балансын, зат алмасуын және зәр жолдарының күйін бағалайды</p>
+          </div>
+          <div class="slide-body">
+            <div class="grid-3">
+              <article class="panel"><div class="panel-idx num">01</div><h3 class="panel-title">Түсі, мөлдірлігі және тығыздығы</h3><p class="body-text">Сұйықтық ішу мөлшерін, зәрдің шоғырлану деңгейін және тұздар мен шырыштың әсерін көрсетеді.</p></article>
+              <article class="panel"><div class="panel-idx num">02</div><h3 class="panel-title">рН ортасы және химиялық құрам</h3><p class="body-text">Ақуыз, глюкоза, кетон денелері мен билирубин бүйрек сүзгісі мен зат алмасу жағдайынан хабар береді.</p></article>
+              <article class="panel"><div class="panel-idx num">03</div><h3 class="panel-title">Жасушалар және микроскопия</h3><p class="body-text">Лейкоциттер, эпителий және шырыш қабыну белгілерін немесе үлгі жинау тазалығын анықтауға көмектеседі.</p></article>
+            </div>
+          </div>
+        </section>`,
+
+        () => `<section class="slide">
+          <div class="slide-head">
+            <div class="kicker">03 · Жиынтық деректер</div>
+            <h2>Талдау нәтижелерінің кестесі</h2>
+          </div>
+          <div class="slide-body">
+            <table class="num">
+              <thead><tr><th>Күні</th><th>Түсі</th><th>Мөлдірлігі</th><th>Тығыздығы</th><th>рН</th><th>Ақуыз</th><th>Лейкоциттер</th><th>Эпителий</th><th>Шырыш</th><th>Қосымша</th></tr></thead>
+              <tbody>${LAB.map((r) => `<tr>
+                <td class="date-col">${r.date}</td><td>${r.color}</td><td>${r.clarity}</td>
+                <td class="${r.sg > 1030 ? "flag-amber" : ""}">${r.sgLabel}</td>
+                <td>${r.ph}</td><td>${r.protein}</td>
+                <td class="${r.leu[1] > 5 ? "flag-amber" : ""}">${r.leu[0]}–${r.leu[1]}</td>
+                <td>${r.epi}</td><td>${r.mucus}</td><td class="note-col">${r.extra}</td>
+              </tr>`).join("")}</tbody>
+            </table>
+          </div>
+          <div class="slide-foot">Ескерту: сары түспен (мысалы, 4–6 және &gt;1030) қалыпты шектен жоғары мәндер белгіленген.</div>
+        </section>`,
+
+        () => `<section class="slide">
+          <div class="slide-head">
+            <div class="kicker">04 · А графигі</div>
+            <h2>Лейкоциттер серпіні (көру аймағында)</h2>
+            <p class="subtitle">Қалыпты аралық: 0–5 к/а · 24.02.2026 күні шекті мәннен жоғары (4–6), 15.04.2026 қарай 0–2 дейін төмендеді</p>
+          </div>
+          <div class="slide-body">
+            <div class="chart-card">
+              <div class="chart-legend">
+                <span class="leg-item"><span class="leg-swatch" style="background:#0f766e"></span>Төменгі шегі</span>
+                <span class="leg-item"><span class="leg-swatch" style="background:#5eead4"></span>Мән аралығы</span>
+                <span class="leg-item"><span class="leg-swatch" style="background:#d97706"></span>5-тен жоғары</span>
+                <span class="leg-item"><span class="leg-swatch" style="background:#ccfbf1;border:1px solid #0f766e"></span>Қалыпты аймақ (0–5)</span>
+              </div>
+              ${buildLeuChart()}
+            </div>
+          </div>
+          <div class="slide-foot">Зертхана бланкілерінде зәр көрсеткіштерінің референс мәндері басылмаған; мұнда жалпы қабылданған типтік мәндер көрсетілген.</div>
+        </section>`,
+
+        () => `<section class="slide">
+          <div class="slide-head">
+            <div class="kicker">05 · Ә графигі</div>
+            <h2>Зәрдің меншікті тығыздығы</h2>
+            <p class="subtitle">Қалыпты аралық: 1005–1030 · Көрсеткіштер жоғарғы шекте (1020–1030), 15.04.2026 күні &gt;1030</p>
+          </div>
+          <div class="slide-body">
+            <div class="chart-card">${buildSgChart()}</div>
+          </div>
+          <div class="slide-foot">Зертхана бланкілерінде зәр көрсеткіштерінің референс мәндері басылмаған; мұнда жалпы қабылданған типтік мәндер көрсетілген.</div>
+        </section>`,
+
+        () => {
+          const items = [
+            ["Ақуыз", "Теріс / Жоқ", "Барлық 7 талдауда да анықталған жоқ"],
+            ["Глюкоза", "Теріс", "15.04.2026 талдауында теріс нәтиже"],
+            ["Қан (эритроциттер)", "Теріс", "15.04.2026 талдауында эритроциттер жоқ"],
+            ["Нитриттер", "Теріс", "Зәрде бактериялық ыдырау белгілері жоқ"],
+            ["Кетон денелері", "Теріс", "15.04.2026 талдауында теріс нәтиже"],
+            ["Билирубин", "Теріс", "16.02.2026 іздері байқалып, 15.04.2026 теріс болды"]
+          ];
+          return `<section class="slide">
+            <div class="slide-head">
+              <div class="kicker">06 · Теріс нәтижелер</div>
+              <h2>Анықталмаған негізгі көрсеткіштер</h2>
+            </div>
+            <div class="slide-body">
+              <div class="grid-3x2">${items.map(([t, s, d]) => `<div class="tile"><div class="tile-top"><h3 class="panel-title">${t}</h3><span class="tile-icon">${CHECK_SVG}</span></div><div class="tile-status">${s}</div><p class="tile-desc">${d}</p></div>`).join("")}</div>
+            </div>
+            <div class="slide-foot">Сонымен қатар 15.04.2026 талдауында уробилиноген — қалыпты деңгейде.</div>
+          </section>`;
+        },
+
+        () => `<section class="slide">
+          <div class="slide-head">
+            <div class="kicker">07 · Тұнба және гигиена</div>
+            <h2>Тұнба элементтері және үлгі ластануы</h2>
+          </div>
+          <div class="slide-body">
+            <div class="split-7">
+              <div class="panel row-list">
+                <div class="row-item"><h3 class="panel-title">Жалпақ эпителий (1–2, 2–3, 2–2)</h3><p class="body-text">Зәр шығару жолдарының сыртқы қабатынан түсетін жасушалар. Бұл мөлшер көбіне үлгі жинау тазалығына байланысты.</p></div>
+                <div class="row-item"><h3 class="panel-title">Шырыш (+ төрт талдауда)</h3><p class="body-text">Эпителиймен бірге кездесуі үлгінің сыртқы ластануына (ортаңғы бөлігін жинамау) нұсқауы мүмкін.</p></div>
+                <div class="row-item"><h3 class="panel-title">Урат тұздары (+ 06.04.2026)</h3><p class="body-text">Қышқыл орта мен жоғары тығыздық (1030) кезінде зәрдің шоғырлануынан жиі түзіледі.</p></div>
+              </div>
+              <div class="panel panel-amber" style="justify-content:center;gap:24px;">
+                <div class="kicker" style="color:var(--amber-text);margin:0;">15.04.2026 · Назар аударуды қажет ететін белгі</div>
+                <h3 class="panel-title">Ашытқы тәрізді саңырауқұлақтар (+)</h3>
+                <p class="body-text">Бұл көрсеткіш үлгі жинау кезіндегі сыртқы ластанумен де, микрофлора теңгерімінің өзгеруімен де байланысты болуы мүмкін.</p>
+                <p class="body-text"><strong>Маңызды:</strong> Әсіресе антибиотик курстары қабылданған болса, бұл нәтижені міндетті түрде дәрігермен талқылау қажет.</p>
+              </div>
+            </div>
+          </div>
+        </section>`,
+
+        () => `<section class="slide">
+          <div class="slide-head">
+            <div class="kicker">08 · Клиникалық түйін</div>
+            <h2>Негізгі қорытынды</h2>
+          </div>
+          <div class="slide-body">
+            <div class="grid-2">
+              <article class="panel"><div class="panel-idx num">01</div><h3 class="panel-title">Айқын патологиялық белгілер жоқ</h3><p class="body-text">Ақуыз, қан (эритроциттер), нитриттер және глюкоза теріс — зертханалық тұрғыдан айқын қабыну немесе глюкозурия байқалмайды.</p></article>
+              <article class="panel"><div class="panel-idx num">02</div><h3 class="panel-title">Лейкоциттер қалыпқа оралды</h3><p class="body-text">Бастапқы шекті мәндерден (3–4 және 24.02 күнгі 4–6) кейін 15.04.2026 талдауында 0–2 к/а дейін төмендеді.</p></article>
+              <article class="panel"><div class="panel-idx num">03</div><h3 class="panel-title">Тығыздық жоғарғы қалыпты шекте</h3><p class="body-text">Тұрақты 1020–1030 және соңғысында &gt;1030 болуы зәрдің шоғырланғанын (сұйықтық тапшылығын) көрсетеді.</p></article>
+              <article class="panel"><div class="panel-idx num">04</div><h3 class="panel-title">Үлгі ластануы ықтимал</h3><p class="body-text">Жалпақ эпителий мен шырыш нәтижелердің бір бөлігі талдау жинау техникасымен байланысты екенін аңғартады.</p></article>
+            </div>
+          </div>
+        </section>`,
+
+        () => {
+          const qs = [
+            "Гигиеналық дайындықты сақтап (таңғы зәрдің таза ортаңғы бөлігін жинау арқылы) бақылау талдауын қайта тапсыру қажет пе?",
+            "15.04.2026 талдауында анықталған ашытқы тәрізді саңырауқұлақтарға (+) — әсіресе антибиотик курстарынан кейін — ем тағайындау қажет пе?",
+            "Зәрдің жоғары тығыздығы (1030, >1030) мен урат тұздарына орай тәуліктік сұйықтық ішу режимін реттеу керек пе?",
+            "Жалпы жағдайды толық бағалау үшін бүйрек пен қуықтың ультрадыбыстық зерттеуін (УДЗ) жасау орынды ма?"
+          ];
+          return `<section class="slide">
+            <div class="slide-head">
+              <div class="kicker">09 · Дәрігермен кеңесу</div>
+              <h2>Дәрігерге қоятын сұрақтар</h2>
+            </div>
+            <div class="slide-body">
+              <div class="q-list">${qs.map((q, i) => `<div class="q-card"><span class="q-num num">0${i + 1}</span><p class="body-text">${q}</p></div>`).join("")}</div>
+            </div>
+          </section>`;
+        },
+
+        () => `<section class="slide disclaimer-wrap">
+          <p class="disclaimer-text">Бұл сайт дәрігердің кеңесін алмастырмайды. Диагнозды тек дәрігер қояды.</p>
+          <div class="disclaimer-line" aria-hidden="true"></div>
+          <p class="source-text num">Зертхана нәтижелері, 16.02–15.04.2026</p>
+        </section>`
+      ];
+
+      const stage = document.getElementById("stage");
+      const hud = document.getElementById("hud");
+      stage.innerHTML = SLIDES.map((fn) => fn()).join("");
+      const slideEls = Array.from(stage.children);
+
+      let idx = 0, presenting = false, lite = false, wasFs = false;
+      let cursorTimer = null, hudTimer = null, touchX = null;
+
+      function fitStage() {
+        const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+        stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+      }
+
+      function bumpTimers() {
+        if (!presenting) return;
+        document.body.classList.remove("hide-cursor");
+        hud.classList.add("is-visible");
+        clearTimeout(cursorTimer);
+        clearTimeout(hudTimer);
+        cursorTimer = setTimeout(() => { if (presenting) document.body.classList.add("hide-cursor"); }, 2000);
+        hudTimer = setTimeout(() => { hud.classList.remove("is-visible"); }, 2000);
+      }
+
+      function showSlide(nextIdx, dir) {
+        const clamped = Math.max(0, Math.min(SLIDES.length - 1, nextIdx));
+        if (clamped === idx && slideEls[idx].classList.contains("is-active")) return;
+        slideEls[idx].classList.remove("is-active", "dir-next", "dir-prev");
+        idx = clamped;
+        const el = slideEls[idx];
+        el.classList.add("is-active");
+        if (!lite && dir) el.classList.add(dir > 0 ? "dir-next" : "dir-prev");
+        hud.textContent = `${idx + 1} / ${SLIDES.length}`;
+        bumpTimers();
+      }
+
+      function enterPresentation() {
+        presenting = true;
+        document.body.classList.add("is-presenting");
+        try {
+          const p = document.documentElement.requestFullscreen();
+          if (p && p.catch) p.catch(() => {});
+        } catch (_) {}
+        showSlide(0, 0);
+        bumpTimers();
+      }
+
+      function exitPresentation() {
+        if (!presenting) return;
+        presenting = false;
+        clearTimeout(cursorTimer);
+        clearTimeout(hudTimer);
+        document.body.classList.remove("is-presenting", "hide-cursor");
+        hud.classList.remove("is-visible");
+        if (document.fullscreenElement) {
+          try { document.exitFullscreen().catch(() => {}); } catch (_) {}
+        }
+        showSlide(0, 0);
+      }
+
+      function toggleFullscreen() {
+        if (document.fullscreenElement) {
+          try { document.exitFullscreen().catch(() => {}); } catch (_) {}
+        } else {
+          try {
+            const p = document.documentElement.requestFullscreen();
+            if (p && p.catch) p.catch(() => {});
+          } catch (_) {}
+        }
+      }
+
+      document.getElementById("btn-start").addEventListener("click", (e) => { e.stopPropagation(); enterPresentation(); });
+      const liteBtn = document.getElementById("btn-lite");
+      liteBtn.addEventListener("click", () => {
+        lite = !lite;
+        document.body.classList.toggle("lite", lite);
+        liteBtn.setAttribute("aria-pressed", String(lite));
+        liteBtn.querySelector(".lite-box").innerHTML = lite ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg>' : "";
+      });
+
+      document.addEventListener("fullscreenchange", () => {
+        if (document.fullscreenElement) { wasFs = true; }
+        else if (wasFs) { wasFs = false; exitPresentation(); }
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (!presenting) return;
+        if (e.code === "ArrowRight" || e.code === "Space" || e.code === "PageDown") { e.preventDefault(); showSlide(idx + 1, 1); }
+        else if (e.code === "ArrowLeft" || e.code === "PageUp") { e.preventDefault(); showSlide(idx - 1, -1); }
+        else if (e.code === "Home") { e.preventDefault(); showSlide(0, -1); }
+        else if (e.code === "End") { e.preventDefault(); showSlide(SLIDES.length - 1, 1); }
+        else if (e.code === "KeyF") { e.preventDefault(); toggleFullscreen(); }
+        else if (e.code === "Escape") { exitPresentation(); }
+      });
+
+      window.addEventListener("click", (e) => {
+        if (!presenting) return;
+        if (e.clientX >= window.innerWidth / 2) showSlide(idx + 1, 1);
+        else showSlide(idx - 1, -1);
+      });
+
+      window.addEventListener("mousemove", bumpTimers, { passive: true });
+      window.addEventListener("contextmenu", (e) => { if (presenting) e.preventDefault(); });
+      window.addEventListener("touchstart", (e) => { if (presenting && e.touches.length === 1) touchX = e.touches[0].clientX; }, { passive: true });
+      window.addEventListener("touchend", (e) => {
+        if (!presenting || touchX === null) return;
+        const dx = e.changedTouches[0].clientX - touchX;
+        touchX = null;
+        if (Math.abs(dx) > 40) showSlide(idx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+      }, { passive: true });
+
+      window.addEventListener("resize", fitStage, { passive: true });
+      fitStage();
+      showSlide(0, 0);
+    })();
+  </script>
+</body>
+</html>

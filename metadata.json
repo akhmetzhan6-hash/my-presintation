@@ -1,0 +1,6 @@
+{
+  "name": "Зәр жалпы талдауы: динамика",
+  "description": "14 жастағы ер баланың 16.02.2026 – 15.04.2026 аралығындағы зәр жалпы талдауы нәтижелерінің презентациясы.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
